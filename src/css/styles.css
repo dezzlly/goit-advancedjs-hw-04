@@ -1,18 +1,174 @@
-/**
-  |============================
-  | include css partials with
-  | default @import url()
-  |============================
-*/
-/* Common styles */
-@import url('./reset.css');
-@import url('./base.css');
-@import url('./container.css');
-@import url('./animations.css');
+:root {
+  --gap: 12px;
+}
 
-/* Sections style */
-@import url('./header.css');
-@import url('./vite-promo.css');
-@import url('./badges.css');
-@import url('./back-link.css');
-@import url('./footer.css');
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 24px;
+  background-color: #fafafa;
+}
+
+/* ===== Header + Search form ===== */
+
+.header {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  padding: 16px;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.search-form {
+  width: min(720px, 95vw); /* обмеження ширини */
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  margin: 0 auto;
+}
+
+.search-form input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.search-form button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #007aff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-form button:hover {
+  background-color: #005ecb;
+}
+
+/* ===== Gallery ===== */
+
+.gallery {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--gap);
+}
+
+.photo-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.photo-card:hover {
+  transform: scale(1.02);
+}
+
+.gallery__image {
+  display: block;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+/* ===== Info panel ===== */
+
+.info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 10px;
+  margin: 0;
+}
+
+.info li {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.info span {
+  color: #666;
+}
+
+/* ===== Controls ===== */
+
+.controls {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #007aff;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+  background-color: #005ecb;
+  transform: scale(1.03);
+}
+
+.btn[aria-busy="true"] {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* ===== Loader ===== */
+
+.loader {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.12);
+  border-top-color: rgba(0, 0, 0, 0.5);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Messages ===== */
+
+.message {
+  text-align: center;
+  color: #444;
+  min-height: 24px;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* ===== Utility ===== */
+
+.is-hidden {
+  display: none !important;
+}
+
