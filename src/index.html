@@ -7,8 +7,8 @@
   </head>
   <body>
     <header class="header">
-      <form id="search-form" class="search-form">
-        <input id="query" name="searchQuery" type="text" placeholder="Search images..." autocomplete="off" />
+      <form class="form search-form" id="search-form">
+        <input id="query" name="searchQuery" type="text" placeholder="Search images..." />
         <button type="submit">Search</button>
       </form>
     </header>
@@ -18,7 +18,7 @@
 
       <div class="controls">
         <button id="load-more" class="btn is-hidden" type="button">Load more</button>
-        <div id="loader" class="loader is-hidden" aria-hidden="true"></div>
+        <span class="loader is-hidden" aria-hidden="true"></span>        
       </div>
 
       <p id="message" class="message" role="status" aria-live="polite"></p>

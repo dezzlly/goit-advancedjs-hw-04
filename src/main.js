@@ -1,8 +1,9 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import '../src/css/styles.css';
-
-import { fetchImages, hasMore, PER_PAGE } from './js/pixabay-api.js';
+import 'izitoast/dist/css/iziToast.min.css';
+import iziToast from 'izitoast';
+import { fetchImages, hasMore, PER_PAGE } from '../src/js/pixabay-api.js';
 import {
   buildGalleryMarkup,
   clearGallery,
@@ -11,90 +12,100 @@ import {
   hide,
   setBusy,
   setMessage,
-} from './js/render-functions.js';
+} from '../src/js/render-functions.js';
 
+function notifySuccess(message) {
+  iziToast.success({ message, position: 'topRight', timeout: 2500 });
+}
+function notifyInfo(message) {
+  iziToast.info({ message, position: 'topRight', timeout: 3000 });
+}
+function notifyError(message) {
+  iziToast.error({ message, position: 'topRight', timeout: 3500 });
+}
 
-const refs = {
-  form: document.querySelector('#search-form'),
-  input: document.querySelector('#query'),
-  gallery: document.querySelector('.gallery'),
-  loadMoreBtn: document.querySelector('#load-more'),
-  loader: document.querySelector('#loader'),
-  message: document.querySelector('#message'),
-};
-
+let refs = {};
 let state = {
   query: '',
   page: 1,
   totalHits: 0,
   isLoading: false,
 };
+let lightbox;
 
-const lightbox = new SimpleLightbox('.gallery a', {
-  captions: true,
-  captionsData: 'alt',
-  captionDelay: 250,
+document.addEventListener('DOMContentLoaded', () => {
+  refs = {
+    form: document.querySelector('form.form') || document.querySelector('#search-form'),
+    input: document.querySelector('#query'),
+    gallery: document.querySelector('.gallery'),
+    loadMoreBtn: document.querySelector('#load-more'),
+    loader: document.querySelector('.loader'),
+    message: document.querySelector('#message'),
+  };
+
+  lightbox = new SimpleLightbox('.gallery a', {
+    captions: true,
+    captionsData: 'alt',
+    captionDelay: 250,
+  });
+
+  if (refs.loadMoreBtn) hide(refs.loadMoreBtn);
+  if (refs.loader) hide(refs.loader);
+
+  if (!refs.form) {
+    console.error('Form element not found. Add class="form" or id="search-form".');
+    return;
+  }
+
+  refs.form.addEventListener('submit', onSearch);
+  refs.loadMoreBtn?.addEventListener('click', onLoadMore);
 });
-
-
-hide(refs.loadMoreBtn);
-hide(refs.loader);
-
-refs.form.addEventListener('submit', onSearch);
-refs.loadMoreBtn.addEventListener('click', onLoadMore);
 
 async function onSearch(e) {
   e.preventDefault();
   const q = refs.input.value.trim();
-
- 
   state.query = q;
   state.page = 1;
   state.totalHits = 0;
   setMessage(refs.message, '');
   hide(refs.loadMoreBtn);
   clearGallery(refs.gallery);
-
   if (!q) {
-    setMessage(refs.message, 'Please enter a search term.');
+    notifyError('Please enter a search term.');
     return;
   }
-
-  await loadImages(); 
+  await loadImages();
 }
 
 async function onLoadMore() {
-  await loadImages(true); 
+  await loadImages(true);
 }
 
-/**
- * Загальний загрузник сторінок
- * @param {boolean} isNextPage
- */
 async function loadImages(isNextPage = false) {
   if (state.isLoading) return;
-
   try {
     state.isLoading = true;
     setBusy(refs.loadMoreBtn, true);
-    show(refs.loader); 
+    show(refs.loader);
 
     const data = await fetchImages(state.query, state.page, PER_PAGE);
     const { hits, totalHits } = data;
     state.totalHits = totalHits;
 
     if (hits.length === 0 && state.page === 1) {
-      setMessage(refs.message, 'Sorry, there are no images matching your search query.');
+      notifyInfo('No images found for your search query.');
       hide(refs.loadMoreBtn);
       return;
     }
 
-   
+    if (state.page === 1) {
+      notifySuccess(`Found ${totalHits} images.`);
+    }
+
     const markup = buildGalleryMarkup(hits);
     appendToGallery(refs.gallery, markup);
     lightbox.refresh();
 
-  
     const more = hasMore({
       page: state.page,
       perPage: PER_PAGE,
@@ -109,9 +120,9 @@ async function loadImages(isNextPage = false) {
         refs.message,
         "We're sorry, but you've reached the end of search results."
       );
+      notifyInfo("You've reached the end of search results.");
     }
 
-    
     if (isNextPage) {
       const firstCard = document.querySelector('.gallery .photo-card');
       if (firstCard) {
@@ -120,11 +131,11 @@ async function loadImages(isNextPage = false) {
       }
     }
 
-    
     state.page += 1;
   } catch (err) {
     console.error(err);
     setMessage(refs.message, 'Unexpected error. Please try again later.');
+    notifyError('Unexpected error. Please try again later.');
   } finally {
     state.isLoading = false;
     hide(refs.loader);
